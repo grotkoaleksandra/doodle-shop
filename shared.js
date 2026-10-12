@@ -22,13 +22,13 @@ ${doodles.filters}
 <div class="wrap">
   <header>
     <nav class="top">
-      <a href="./">All items</a><a href="./?show=available">Available</a><a href="about.html">About</a>
+      <a href="./">All prints</a><a href="about.html">About</a>
       <span class="spacer"></span>
       ${config.instagram ? `<a href="https://instagram.com/${esc(config.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
       <a href="mailto:${esc(config.contactEmail)}">${esc(config.contactEmail)}</a>
     </nav>
     <div class="rule"></div>
-    ${hasToken() ? `<nav class="adminbar"><a href="admin.html">✎ Admin</a><a href="admin.html#new">+ New listing</a></nav>` : ''}
+    ${hasToken() ? `<nav class="adminbar"><a href="admin.html">✎ Admin</a><a href="admin.html#new">+ New print</a></nav>` : ''}
   </header>
   <main>${body}</main>
   <footer><div class="rule"></div>${doodles.squiggle}<p>© ${new Date().getFullYear()} ${esc(config.shopName)}</p></footer>

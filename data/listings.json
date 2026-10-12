@@ -1,47 +1,78 @@
 [
   {
-    "id": "a851921f9f",
-    "title": "Vintage wool cardigan",
-    "price": 89,
-    "size": "M",
-    "brand": "Levi's",
-    "condition": "Very good",
-    "description": "Soft oatmeal cardigan, barely worn.\nNo pilling.",
-    "paymentLink": "",
+    "id": "sample-sun",
+    "title": "Sun over the hills (sample)",
+    "sizes": [
+      {
+        "name": "A5",
+        "price": 35,
+        "link": ""
+      },
+      {
+        "name": "A4",
+        "price": 55,
+        "link": ""
+      },
+      {
+        "name": "A3",
+        "price": 85,
+        "link": ""
+      }
+    ],
+    "description": "A sample print \u2014 replace me with your own!",
     "images": [
-      "images/ababbf7c-a285-4d21-a995-7df591e435d4.png"
+      "images/sample-sun.svg"
     ],
     "status": "available",
-    "createdAt": 1790189091260
+    "createdAt": 1791832308356
   },
   {
-    "id": "ffcc608583",
-    "title": "Blue linen shirt",
-    "price": 45,
-    "size": "S",
-    "brand": "",
-    "condition": "Good",
-    "description": "Summer shirt, relaxed fit.",
-    "paymentLink": "",
-    "images": [
-      "images/f9855964-29c2-4f06-9653-69bec86070d3.png"
+    "id": "sample-cat",
+    "title": "Window cat (sample)",
+    "sizes": [
+      {
+        "name": "A5",
+        "price": 35,
+        "link": ""
+      },
+      {
+        "name": "A4",
+        "price": 55,
+        "link": ""
+      },
+      {
+        "name": "A3",
+        "price": 85,
+        "link": ""
+      }
     ],
-    "status": "sold",
-    "createdAt": 1790189091274
-  },
-  {
-    "id": "2519594782",
-    "title": "Canvas tote bag",
-    "price": 30,
-    "size": "",
-    "brand": "",
-    "condition": "New with tags",
-    "description": "Sturdy tote.",
-    "paymentLink": "",
+    "description": "A sample print \u2014 replace me with your own!",
     "images": [
-      "images/e5691975-3a48-4ae3-b102-b4cf86578777.png"
+      "images/sample-cat.svg"
     ],
     "status": "available",
-    "createdAt": 1790189091287
+    "createdAt": 1791832308357
+  },
+  {
+    "id": "sample-flowers",
+    "title": "Little bouquet (sample)",
+    "sizes": [
+      {
+        "name": "A4",
+        "price": 55,
+        "link": ""
+      },
+      {
+        "name": "A3",
+        "price": 85,
+        "link": ""
+      }
+    ],
+    "description": "A sample print \u2014 replace me with your own!",
+    "images": [
+      "images/sample-flowers.svg"
+    ],
+    "status": "available",
+    "createdAt": 1791832308358
   }
 ]

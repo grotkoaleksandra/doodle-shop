@@ -82,20 +82,20 @@ function setupView(error = '') {
 }
 
 async function listView() {
-  render('Admin', `<p class="kicker">ADMIN</p><h1>Your listings</h1><p class="muted">Loading…</p>`);
+  render('Admin', `<p class="kicker">ADMIN</p><h1>Your prints</h1><p class="muted">Loading…</p>`);
   const items = (await loadListings()).sort((a, b) => b.createdAt - a.createdAt);
   const rows = items.map((it) => `
     <tr>
       <td>${it.images[0] ? `<img src="${esc(img(it.images[0]))}" alt="">` : ''}</td>
       <td><a href="item.html?id=${esc(it.id)}">${esc(it.title)}</a></td>
-      <td>${price(it.price)}</td>
-      <td><select data-status="${esc(it.id)}">${['available', 'reserved', 'sold'].map((s) => `<option ${s === it.status ? 'selected' : ''}>${s}</option>`).join('')}</select></td>
+      <td>${(it.sizes || []).filter((s) => s.price > 0).map((s) => `${esc(s.name)} ${price(s.price)}`).join('<br>')}</td>
+      <td><select data-status="${esc(it.id)}">${[['available', 'on sale'], ['hidden', 'hidden']].map(([v, l]) => `<option value="${v}" ${v === (it.status || 'available') ? 'selected' : ''}>${l}</option>`).join('')}</select></td>
       <td class="actions"><a href="#edit/${esc(it.id)}">edit</a><button class="link" data-delete="${esc(it.id)}">delete</button></td>
     </tr>`).join('');
-  render('Admin', `${takeFlash()}<p class="kicker">ADMIN</p><h1>Your listings</h1>
-    <p class="adminlinks"><a class="btn solid" href="#new">+ New listing</a><button class="link" id="logout">disconnect this browser</button></p>
-    ${items.length ? `<table class="admin"><thead><tr><th></th><th>Item</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
-      : `<div class="empty">${doodles.hanger}<p>No listings yet. Post your first one!</p></div>`}`);
+  render('Admin', `${takeFlash()}<p class="kicker">ADMIN</p><h1>Your prints</h1>
+    <p class="adminlinks"><a class="btn solid" href="#new">+ New print</a><button class="link" id="logout">disconnect this browser</button></p>
+    ${items.length ? `<table class="admin"><thead><tr><th></th><th>Print</th><th>Sizes & prices</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
+      : `<div class="empty">${doodles.frame}<p>No prints yet. Post your first one!</p></div>`}`);
 
   document.getElementById('logout').onclick = () => { localStorage.removeItem('gh-token'); location.href = './'; };
   document.querySelectorAll('[data-status]').forEach((sel) => (sel.onchange = async () => {
@@ -104,11 +104,11 @@ async function listView() {
     const it = all.find((i) => i.id === sel.dataset.status);
     it.status = sel.value;
     await saveListings(all, `Mark "${it.title}" as ${it.status}`);
-    flash(`“${it.title}” is now ${it.status}. The live site updates in about a minute.`);
+    flash(`“${it.title}” is now ${it.status === 'hidden' ? 'hidden from the shop' : 'on sale'}. The live site updates in about a minute.`);
     listView();
   }));
   document.querySelectorAll('[data-delete]').forEach((btn) => (btn.onclick = async () => {
-    if (!confirm('Delete this listing and its photos?')) return;
+    if (!confirm('Delete this print and its photos?')) return;
     btn.textContent = 'deleting…';
     const all = await loadListings();
     const it = all.find((i) => i.id === btn.dataset.delete);
@@ -123,34 +123,43 @@ async function formView(id) {
   const items = await loadListings();
   const it = id ? items.find((i) => i.id === id) : {};
   if (!it) return (location.hash = '');
-  const opt = (list, v) => list.map((c) => `<option ${c === (v || '') ? 'selected' : ''}>${c}</option>`).join('');
-  render(id ? 'Edit listing' : 'New listing', `
+  const sizes = it.sizes?.length ? it.sizes : config.defaultSizes.map((name) => ({ name, price: '', link: '' }));
+  const sizeRow = (sz = {}) => `
+    <tr>
+      <td><input name="sizeName" maxlength="40" value="${esc(sz.name)}" placeholder="e.g. A4"></td>
+      <td><input name="sizePrice" type="number" min="0" step="0.01" value="${esc(sz.price)}" placeholder="—"></td>
+      <td><input name="sizeLink" type="url" pattern="https://.*" value="${esc(sz.link)}" placeholder="https://buy.stripe.com/… (optional)"></td>
+    </tr>`;
+  render(id ? 'Edit print' : 'New print', `
     <form class="form" id="listing">
-      <p class="kicker"><a href="admin.html">ADMIN</a></p><h1>${id ? 'Edit listing' : 'New listing'}</h1>
-      <label>Title<input name="title" required maxlength="120" value="${esc(it.title)}" placeholder="Vintage wool cardigan"></label>
-      <div class="row">
-        <label>Price (${esc(config.currency)})<input name="price" type="number" min="0" step="0.01" required value="${esc(it.price)}"></label>
-        <label>Size<input name="size" maxlength="40" value="${esc(it.size)}" placeholder="M / 38"></label>
+      <p class="kicker"><a href="admin.html">ADMIN</a></p><h1>${id ? 'Edit print' : 'New print'}</h1>
+      <label>Title<input name="title" required maxlength="120" value="${esc(it.title)}" placeholder="Cat on a windowsill"></label>
+      <div class="sizefield">
+        <p class="label">Sizes & prices <span class="muted">— leave a price empty if you don't offer that size. A payment link adds a “Buy now” button for that size.</span></p>
+        <table class="sizetable">
+          <thead><tr><th>Size</th><th>Price (${esc(config.currency)})</th><th>Payment link</th></tr></thead>
+          <tbody>${sizes.map(sizeRow).join('')}</tbody>
+        </table>
+        <button type="button" class="link" id="addsize">+ add another size</button>
       </div>
-      <div class="row">
-        <label>Brand<input name="brand" maxlength="60" value="${esc(it.brand)}"></label>
-        <label>Condition<select name="condition">${opt(['', 'New with tags', 'Very good', 'Good', 'Satisfactory'], it.condition)}</select></label>
-      </div>
-      <label>Description<textarea name="description" rows="6" maxlength="4000">${esc(it.description)}</textarea></label>
-      <label>Payment link <span class="muted">(optional — e.g. a Stripe Payment Link or PayPal.me. Adds a “Buy now” button.)</span>
-        <input name="paymentLink" type="url" pattern="https://.*" value="${esc(it.paymentLink)}" placeholder="https://buy.stripe.com/..."></label>
+      <label>Description <span class="muted">(optional — paper, story behind it…)</span><textarea name="description" rows="5" maxlength="4000">${esc(it.description)}</textarea></label>
       ${it.images?.length ? `<div class="thumbs">${it.images.map((p) => `<label class="thumbpick"><img src="${esc(img(p))}" alt=""><span><input type="checkbox" name="remove" value="${esc(p)}"> remove</span></label>`).join('')}</div>` : ''}
       <label>Photos <span class="muted">(up to 8, first one is the cover)</span><input type="file" name="photos" accept="image/*" multiple></label>
-      <button class="btn solid">${id ? 'Save changes' : 'Post it!'}</button>
+      <button class="btn solid" type="submit">${id ? 'Save changes' : 'Post it!'}</button>
       <p class="status muted" aria-live="polite"></p>
     </form>`);
 
   const form = document.getElementById('listing');
+  document.getElementById('addsize').onclick = () => form.querySelector('.sizetable tbody').insertAdjacentHTML('beforeend', sizeRow());
   form.onsubmit = async (e) => {
     e.preventDefault();
     const f = new FormData(form);
-    const btn = form.querySelector('button');
+    const prices = f.getAll('sizePrice'), links = f.getAll('sizeLink');
+    const sizes = f.getAll('sizeName').map((name, i) => ({ name: name.trim(), price: Math.max(0, Number(prices[i]) || 0), link: links[i].trim() }))
+      .filter((s) => s.name && s.price > 0);
     const status = form.querySelector('.status');
+    if (!sizes.length) { status.textContent = 'Add a price for at least one size.'; return; }
+    const btn = form.querySelector('button[type=submit]');
     btn.disabled = true;
     try {
       const listingId = it.id || crypto.randomUUID().slice(0, 10);
@@ -165,20 +174,16 @@ async function formView(id) {
         previews[path] = URL.createObjectURL(blob);
         added.push(path);
       }
-      status.textContent = 'Saving listing…';
+      status.textContent = 'Saving print…';
       const all = await loadListings();
-      const fields = {
-        title: f.get('title').trim(), price: Math.max(0, Number(f.get('price')) || 0),
-        size: f.get('size').trim(), brand: f.get('brand').trim(), condition: f.get('condition'),
-        description: f.get('description'), paymentLink: f.get('paymentLink').trim(),
-      };
+      const fields = { title: f.get('title').trim(), sizes, description: f.get('description') };
       const current = all.find((i) => i.id === listingId);
       if (current) {
         Object.assign(current, fields, { images: [...current.images.filter((p) => !remove.includes(p)), ...added].slice(0, 8) });
       } else {
         all.push({ id: listingId, ...fields, images: added.slice(0, 8), status: 'available', createdAt: Date.now() });
       }
-      await saveListings(all, `${current ? 'Update' : 'Add'} listing "${fields.title}"`);
+      await saveListings(all, `${current ? 'Update' : 'Add'} print "${fields.title}"`);
       for (const p of remove) await deleteFile(p, `Remove photo from "${fields.title}"`);
       flash(`Saved “${fields.title}”! It'll be live on the site in about a minute.`);
       location.hash = '';

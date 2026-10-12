@@ -8,28 +8,34 @@ export const doodles = {
     <filter id="wobble"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="3"/></filter>
   </defs></svg>`,
 
-  // shop logo: a hanger with a price tag dangling off it
-  logo: svg('logo-mark', '0 0 80 64', `
-    <path d="M40 14c0-5 4-8 8-6s3 7-1 9l-7 5"/>
-    <path d="M40 22L6 44c-3 2-2 5 2 5h64c4 0 5-3 2-5L40 22"/>
-    <path d="M52 49l2 10 10-3-3-8"/>
-    <circle cx="58" cy="54" r="1.2"/>`),
+  // shop logo: a little framed picture hanging from a nail
+  logo: svg('logo-mark', '0 0 80 72', `
+    <circle cx="40" cy="6" r="2"/>
+    <path d="M40 8L18 24M40 8l22 16"/>
+    <path d="M12 24h56v44H12z"/>
+    <path d="M18 30h44v32H18z"/>
+    <path d="M20 58l12-14 8 9 7-6 13 11"/>
+    <circle cx="50" cy="38" r="3"/>`),
 
-  hanger: svg('hanger', '0 0 120 90', `
-    <path d="M60 20c0-7 5-11 11-9s5 10-1 13l-10 7"/>
-    <path d="M60 31L10 62c-4 3-3 7 3 7h94c6 0 7-4 3-7L60 31"/>
-    <path d="M30 80c10-4 20 4 30 0s20-4 30 0"/>`),
+  // empty / placeholder: a frame with a smile
+  frame: svg('frame', '0 0 120 100', `
+    <path d="M10 8h100v84H10z"/>
+    <path d="M22 20h76v60H22z"/>
+    <circle cx="48" cy="44" r="2"/><circle cx="72" cy="44" r="2"/>
+    <path d="M46 58c6 6 22 6 28 0"/>`),
 
-  bag: svg('bag', '0 0 100 110', `
-    <path d="M18 36h64l-5 64H23z"/>
-    <path d="M36 44V28c0-10 6-16 14-16s14 6 14 16v16"/>
-    <path d="M40 66c3 4 17 4 20 0"/>
-    <circle cx="40" cy="56" r="1.5"/><circle cx="60" cy="56" r="1.5"/>`),
+  // a print rolling off a roller
+  roller: svg('roller', '0 0 120 100', `
+    <path d="M14 20h72"/><circle cx="14" cy="20" r="8"/><circle cx="86" cy="20" r="8"/>
+    <path d="M22 28v54h56V28"/>
+    <path d="M32 70l12-16 10 10 8-8 10 14"/><circle cx="62" cy="42" r="4"/>
+    <path d="M94 20h12l4 6"/>`),
 
-  sweater: svg('sweater', '0 0 120 100', `
-    <path d="M42 12c4 6 32 6 36 0l22 10 14 30-14 6-6-12v48H26V46l-6 12-14-6 14-30z"/>
-    <path d="M44 12c4 10 28 10 32 0"/>
-    <path d="M40 60h40M40 72h40M40 84h40" stroke-dasharray="3 5"/>`),
+  pencil: svg('pencil', '0 0 120 60', `
+    <path d="M10 40L90 12l14 8-80 28z"/>
+    <path d="M90 12l4 12M24 48l-4-12"/>
+    <path d="M104 20l10 3-8 6"/>
+    <path d="M8 54c14-6 30 4 46-2"/>`),
 
   star: svg('star', '0 0 60 60', `
     <path d="M30 6l6 17 18 1-14 11 5 18-15-10-15 10 5-18L6 24l18-1z"/>`),

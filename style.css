@@ -58,9 +58,9 @@ h3 { font-size: 14px; font-weight: 700; margin: 12px 0 2px; line-height: 1.35; }
 .hero p { max-width: 42ch; }
 .hero-doodles { position: relative; height: 180px; }
 .hero-doodles .doodle { position: absolute; }
-.hero-doodles .bag { width: 110px; left: 8%; top: 20px; transform: rotate(-8deg); }
+.hero-doodles .roller { width: 130px; left: 4%; top: 20px; transform: rotate(-6deg); }
 .hero-doodles .star { width: 46px; left: 45%; top: 0; animation: spin 14s linear infinite; }
-.hero-doodles .sweater { width: 150px; right: 4%; top: 40px; transform: rotate(6deg); }
+.hero-doodles .pencil { width: 150px; right: 2%; top: 80px; transform: rotate(-4deg); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .count { font-size: 13px; margin: 0 0 20px; }
@@ -140,7 +140,7 @@ button.link { background: none; border: 0; color: inherit; font: inherit; paddin
 .empty { text-align: center; padding: 60px 0; font-family: var(--hand); font-size: 22px; }
 .empty .doodle { width: 140px; margin: 0 auto 10px; }
 .prose { max-width: 60ch; }
-.prose .sweater { width: 140px; margin-top: 20px; transform: rotate(-5deg); }
+.prose .roller { width: 140px; margin-top: 20px; transform: rotate(-5deg); }
 
 footer { margin-top: 60px; font-size: 12px; }
 footer .squiggle { width: 160px; display: block; margin: 20px 0 4px; }
@@ -158,8 +158,8 @@ footer .squiggle { width: 160px; display: block; margin: 20px 0 4px; }
   .hero { grid-template-columns: 1fr; gap: 0; padding-top: 10px; }
   .hero h1 { font-size: 38px; }
   .hero-doodles { height: 130px; }
-  .hero-doodles .bag { width: 80px; }
-  .hero-doodles .sweater { width: 110px; }
+  .hero-doodles .roller { width: 100px; }
+  .hero-doodles .pencil { width: 110px; top: 60px; }
   .grid { grid-template-columns: 1fr 1fr; gap: 28px 14px; }
   .item { grid-template-columns: 1fr; gap: 24px; }
   .info { position: static; }
@@ -170,3 +170,27 @@ footer .squiggle { width: 160px; display: block; margin: 20px 0 4px; }
 .steps { margin: 0; padding-left: 20px; }
 .flash { font-family: var(--hand); font-size: 20px; border: 2px dashed var(--red); padding: 6px 14px; display: inline-block; }
 .adminlinks { display: flex; align-items: center; gap: 20px; }
+
+/* ---------- print sizes ---------- */
+.sizes { border: 0; padding: 0; margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+.sizes legend { font-weight: 600; font-size: 13px; margin-bottom: 6px; padding: 0; }
+.sizes input { position: absolute; opacity: 0; }
+.sizes span { display: inline-block; min-width: 52px; text-align: center; border: 1.5px solid var(--red); padding: 5px 14px; cursor: pointer; font-weight: 600; }
+.sizes input:checked + span { background: var(--red); color: #fff; }
+.sizes input:focus-visible + span { outline: 3px solid var(--red-soft); }
+.onesize { font-size: 13px; margin: 0; }
+.desc { margin-top: 18px; }
+
+.sizefield .label { font-weight: 600; font-size: 13px; margin: 0 0 6px; }
+.sizetable { width: 100%; border-collapse: collapse; }
+.sizetable th { text-align: left; font-size: 12px; font-weight: 600; padding: 0 6px 4px 0; }
+.sizetable td { padding: 0 6px 6px 0; }
+.sizetable input { width: 100%; }
+.sizetable td:first-child { width: 22%; } .sizetable td:nth-child(2) { width: 22%; }
+.sizefield .link { margin-top: 2px; font-size: 13px; }
+@media (max-width: 760px) {
+  .sizetable thead { display: none; }
+  .sizetable tr { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+  .sizetable td { width: auto !important; padding: 0; }
+  .sizetable td:nth-child(3) { grid-column: 1 / -1; }
+}

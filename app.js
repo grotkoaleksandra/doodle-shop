@@ -1,6 +1,6 @@
 import { config } from './config.js';
 import { doodles } from './doodles.js';
-import { esc, price, render, loadListings } from './shared.js';
+import { esc, price, render, loadListings, getCart, setCart, addToCart } from './shared.js';
 
 const sizesOf = (it) => (it.sizes || []).filter((s) => s.price > 0);
 const fromPrice = (it) => {
@@ -64,15 +64,81 @@ async function item() {
     const s = sizes[document.querySelector('input[name=size]:checked')?.value ?? 0];
     if (!s) return;
     document.getElementById('price').innerHTML = price(s.price);
-    const mail = `mailto:${config.contactEmail}?subject=${encodeURIComponent(`Print order: ${it.title} (${s.name})`)}&body=${encodeURIComponent(`Hi! I'd like to order "${it.title}" in ${s.name}.\n\nMy name:\nShipping address:\n`)}`;
     const link = /^https:\/\//.test(s.link || '') ? s.link : '';
     document.getElementById('buy').innerHTML = `
-      ${link ? `<a class="btn solid" href="${esc(link)}" target="_blank" rel="noopener">Buy ${esc(s.name)} now</a>` : ''}
-      <a class="btn ${link ? '' : 'solid'}" href="${esc(mail)}">Order by message</a>
-      ${config.instagram ? `<a class="btn ghost" href="https://ig.me/m/${esc(config.instagram)}" target="_blank" rel="noopener">DM on Instagram</a>` : ''}`;
+      <button class="btn solid" id="add">Add ${esc(s.name)} to cart</button>
+      ${link ? `<a class="btn" href="${esc(link)}" target="_blank" rel="noopener">Buy ${esc(s.name)} now</a>` : ''}
+      ${config.instagram ? `<a class="btn ghost" href="https://ig.me/m/${esc(config.instagram)}" target="_blank" rel="noopener">DM on Instagram</a>` : ''}
+      <p class="added" id="added" hidden>Added! <a href="cart.html">Go to cart →</a></p>`;
+    document.getElementById('add').onclick = () => {
+      addToCart(it.id, s.name);
+      document.getElementById('added').hidden = false;
+    };
   };
   document.querySelectorAll('input[name=size]').forEach((r) => (r.onchange = update));
   update();
+}
+
+async function cart() {
+  const listings = await loadListings();
+  // Match cart lines to current prints/prices; drop anything no longer on sale.
+  const lines = getCart().map((l) => {
+    const it = listings.find((i) => i.id === l.id && i.status !== 'hidden');
+    const s = it && sizesOf(it).find((x) => x.name === l.size);
+    return s ? { ...l, it, price: s.price } : null;
+  }).filter(Boolean);
+  setCart(lines.map(({ id, size, qty }) => ({ id, size, qty })));
+  const total = lines.reduce((t, l) => t + l.price * l.qty, 0);
+
+  if (!lines.length) {
+    return render('Cart', `<p class="kicker">CART / カート</p><h1>Your cart</h1>
+      <div class="empty">${doodles.frame}<p>Your cart is empty. <a href="./">Go find a print →</a></p></div>`);
+  }
+
+  const money = (n) => `${n.toFixed(2).replace('.', ',')} ${config.currency}`;
+  const orderText = [
+    "Hi! I'd like to order:",
+    '',
+    ...lines.map((l) => `• ${l.it.title} — ${l.size} × ${l.qty} = ${money(l.price * l.qty)}`),
+    '',
+    `Total: ${money(total)} (+ shipping)`,
+    '',
+    'My name:',
+    'Shipping address:',
+    '',
+  ].join('\n');
+  const mail = `mailto:${config.contactEmail}?subject=${encodeURIComponent(`Print order (${lines.length} item${lines.length > 1 ? 's' : ''})`)}&body=${encodeURIComponent(orderText)}`;
+
+  render('Cart', `<p class="kicker">CART / カート</p><h1>Your cart</h1>
+    <table class="cart">
+      <tbody>${lines.map((l, i) => `
+        <tr>
+          <td>${l.it.images[0] ? `<img src="${esc(l.it.images[0])}" alt="">` : ''}</td>
+          <td><a href="item.html?id=${esc(l.id)}">${esc(l.it.title)}</a><br><span class="muted">${esc(l.size)} · ${price(l.price)}</span></td>
+          <td class="qty"><button data-qty="${i}" data-d="-1" aria-label="One less">−</button><span>${l.qty}</span><button data-qty="${i}" data-d="1" aria-label="One more">+</button></td>
+          <td class="linetotal">${price(l.price * l.qty)}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    <p class="total">Total: ${price(total)} <span class="muted">+ shipping</span></p>
+    <div class="buy">
+      <a class="btn solid" href="${esc(mail)}">Send my order by email</a>
+      <button class="btn" id="copy">Copy order (for Instagram DM)</button>
+    </div>
+    <p class="note">${doodles.arrow} I'll reply with shipping costs and how to pay. ${esc(config.printNote)}</p>
+    <p><button class="link" id="clear">empty cart</button></p>`);
+
+  document.querySelectorAll('[data-qty]').forEach((b) => (b.onclick = () => {
+    const c = getCart();
+    c[b.dataset.qty].qty += Number(b.dataset.d);
+    setCart(c.filter((l) => l.qty > 0));
+    cart();
+  }));
+  document.getElementById('copy').onclick = async (e) => {
+    try { await navigator.clipboard.writeText(orderText); e.target.textContent = 'Copied! Paste it in a DM'; }
+    catch { e.target.textContent = 'Couldn\'t copy — use email instead'; }
+  };
+  document.getElementById('clear').onclick = () => { setCart([]); cart(); };
 }
 
 function about() {
@@ -81,4 +147,4 @@ function about() {
     <p>${esc(config.printNote)} Questions about sizes, framing or custom orders? Just message me.</p>${doodles.roller}</section>`);
 }
 
-({ home, item, about })[document.body.dataset.page]?.();
+({ home, item, about, cart })[document.body.dataset.page]?.();

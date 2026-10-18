@@ -93,7 +93,7 @@ async function listView() {
       <td class="actions"><a href="#edit/${esc(it.id)}">edit</a><button class="link" data-delete="${esc(it.id)}">delete</button></td>
     </tr>`).join('');
   render('Admin', `${takeFlash()}<p class="kicker">ADMIN</p><h1>Your prints</h1>
-    <p class="adminlinks"><a class="btn solid" href="#new">+ New print</a><button class="link" id="logout">disconnect this browser</button></p>
+    <p class="adminlinks"><a class="btn solid" href="#new">+ New print</a><a href="#help">how to send an order to Gelato</a><button class="link" id="logout">disconnect this browser</button></p>
     ${items.length ? `<table class="admin"><thead><tr><th></th><th>Print</th><th>Sizes & prices</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
       : `<div class="empty">${doodles.frame}<p>No prints yet. Post your first one!</p></div>`}`);
 
@@ -194,11 +194,50 @@ async function formView(id) {
   };
 }
 
+function helpView() {
+  render('Sending orders to Gelato', `
+    <section class="prose guide">
+      <p class="kicker"><a href="admin.html">ADMIN</a> / GUIDE</p>
+      <h1>How to send an order to Gelato</h1>
+      <p>Gelato prints your poster and posts it straight to your customer, so you never touch paper or parcels. Gelato's buttons may be named a little differently from what's written here, but the steps are the same.</p>
+
+      <h2>Once, before your first sale</h2>
+      <ol>
+        <li>Make a free account at <a href="https://www.gelato.com" target="_blank" rel="noopener">gelato.com</a>.</li>
+        <li>Save each design as a big, sharp file (PNG or PDF). For good quality at 300 dpi:
+          <ul><li>A5 — 1748 × 2480 px</li><li>A4 — 2480 × 3508 px</li><li>A3 — 3508 × 4961 px</li></ul>
+          Keep these files in one folder so you can find them fast.</li>
+        <li>Order one sample print to yourself to check the paper and colours.</li>
+        <li>Check what Gelato charges for each size <b>including shipping</b>, and make sure your prices on this site cover that plus your profit.</li>
+      </ol>
+
+      <h2>Every time someone orders</h2>
+      <ol>
+        <li>You get an email (or DM) with their order: which prints, which sizes, their name and address.</li>
+        <li>Reply with the total including shipping and how to pay (BLIK, bank transfer, or a payment link).</li>
+        <li>Once they've paid, go to Gelato and start a new order.</li>
+        <li>Pick the poster product and the size, and upload that print's design file.</li>
+        <li>Type in your <b>customer's</b> name and shipping address (not yours!).</li>
+        <li>Pay Gelato for the print and shipping.</li>
+        <li>When Gelato sends you the tracking link, forward it to your customer.</li>
+      </ol>
+
+      <h2>Tips</h2>
+      <ul>
+        <li>If Gelato lets you save a design as a product or template, do it — next time you only pick the size and type the address.</li>
+        <li>Note each order down somewhere (even a notes app): who, what, paid, sent to Gelato, tracking sent.</li>
+        <li>If a print arrives damaged, Gelato usually reprints it — contact their support with a photo.</li>
+      </ul>
+      <p><a class="btn" href="admin.html">← Back to your prints</a></p>
+    </section>`);
+}
+
 async function route() {
   if (!token()) return setupView();
   const [view, id] = location.hash.slice(1).split('/');
   try {
-    if (view === 'new') await formView();
+    if (view === 'help') helpView();
+    else if (view === 'new') await formView();
     else if (view === 'edit') await formView(id);
     else await listView();
   } catch (err) {

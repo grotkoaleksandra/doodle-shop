@@ -26,6 +26,7 @@ ${doodles.filters}
       <span class="spacer"></span>
       ${config.instagram ? `<a href="https://instagram.com/${esc(config.instagram)}" target="_blank" rel="noopener">Instagram</a>` : ''}
       <a href="mailto:${esc(config.contactEmail)}">${esc(config.contactEmail)}</a>
+      <a href="cart.html" class="cartbtn">Cart (<span id="cartcount">${cartCount()}</span>)</a>
     </nav>
     <div class="rule"></div>
     ${hasToken() ? `<nav class="adminbar"><a href="admin.html">✎ Admin</a><a href="admin.html#new">+ New print</a></nav>` : ''}
@@ -38,4 +39,22 @@ ${doodles.filters}
 export const loadListings = async () => {
   const res = await fetch('data/listings.json', { cache: 'no-cache' });
   return res.ok ? res.json() : [];
+};
+
+// ---------- cart (kept in this browser only) ----------
+export const getCart = () => {
+  try { return JSON.parse(localStorage.getItem('cart')) || []; } catch { return []; }
+};
+export const setCart = (cart) => {
+  try { localStorage.setItem('cart', JSON.stringify(cart)); } catch {}
+  const el = document.getElementById('cartcount');
+  if (el) el.textContent = cartCount();
+};
+export const cartCount = () => getCart().reduce((n, line) => n + line.qty, 0);
+export const addToCart = (id, size) => {
+  const cart = getCart();
+  const line = cart.find((l) => l.id === id && l.size === size);
+  if (line) line.qty += 1;
+  else cart.push({ id, size, qty: 1 });
+  setCart(cart);
 };
